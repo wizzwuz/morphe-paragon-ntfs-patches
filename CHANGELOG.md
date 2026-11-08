@@ -1,3 +1,9 @@
+## [1.0.4](https://github.com/wizzwuz/morphe-patch/compare/v1.0.3...v1.0.4) (2026-11-08)
+
+### 🐛 Bug Fixes
+
+* **patches:** add target version 5.4.0 for Total Commander NTFS RO ([4ca64bf](https://github.com/wizzwuz/morphe-patch/commit/4ca64bf57bd261229ad0fdfd2243db906f0ab08d))
+
 ## [1.0.2](https://github.com/wizzwuz/morphe-patch/compare/v1.0.1...v1.0.2) (2026-11-08)
 
 ### 🐛 Bug Fixes

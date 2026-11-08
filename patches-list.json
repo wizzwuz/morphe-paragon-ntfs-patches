@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "patches": [
     {
       "name": "Example Patch",
@@ -38,7 +38,7 @@
     },
     {
       "name": "Unlock value pack",
-      "description": "Unlocks value pack/full access by forcing purchase validation to succeed and bypassing the app signature integrity check for com.paragon.tcplugins_ntfs_ro.",
+      "description": "Unlocks value pack",
       "default": true,
       "category": null,
       "compatiblePackages": [
@@ -51,6 +51,13 @@
           "signatures": null,
           "formFactor": "MOBILE",
           "targets": [
+            {
+              "version": "5.4.0",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
             {
               "version": null,
               "versionCodes": null,
