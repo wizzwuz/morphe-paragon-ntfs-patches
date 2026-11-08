@@ -16,13 +16,14 @@ package app.morphe.patches.flud.premium
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patches.flud.premium.Constants
 
 @Suppress("unused")
 val unlockFludPremiumPatch = bytecodePatch(
     name = "Unlock Premium + Remove Ads",
     description = "Unlocks premium features and removes all ads in Flud (com.delphicoder.flud) by forcing billing premium state and disabling the ad manager.",
 ) {
-    compatibleWith("com.delphicoder.flud")
+    compatibleWith(Constants.COMPATIBILITY_FLUD)
 
     execute {
         // 1) Force premium unlocked in billing query response.
