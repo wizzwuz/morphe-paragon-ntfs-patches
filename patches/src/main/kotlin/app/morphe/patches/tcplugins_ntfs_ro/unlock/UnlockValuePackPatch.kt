@@ -17,6 +17,7 @@
 package app.morphe.patches.tcplugins_ntfs_ro.unlock
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patches.tcplugins_ntfs_ro.unlock.Constants
 import app.morphe.patcher.patch.bytecodePatch
 
 @Suppress("unused")
@@ -24,7 +25,7 @@ val unlockValuePackPatch = bytecodePatch(
     name = "Unlock value pack",
     description = "Unlocks value pack/full access by forcing purchase validation to succeed and bypassing the app signature integrity check for com.paragon.tcplugins_ntfs_ro.",
 ) {
-    compatibleWith("com.paragon.tcplugins_ntfs_ro")
+    compatibleWith(Constants.COMPATIBILITY_NTFS_RO)
 
     execute {
         // 1) p3.i.j()Z -> always true
