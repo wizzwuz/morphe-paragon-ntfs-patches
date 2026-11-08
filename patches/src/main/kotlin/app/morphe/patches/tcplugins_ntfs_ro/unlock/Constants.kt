@@ -18,4 +18,3 @@ object Constants {
         )
     )
 }
-EOF
