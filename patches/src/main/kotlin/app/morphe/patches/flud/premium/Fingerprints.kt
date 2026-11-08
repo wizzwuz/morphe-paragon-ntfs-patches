@@ -154,3 +154,17 @@ internal object MobileAdsInitializeFingerprint : Fingerprint(
         "Lcom/google/android/gms/ads/initialization/OnInitializationCompleteListener;",
     ),
 )
+
+internal object AdLoaderLoadAdFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/gms/ads/AdLoader;",
+    name = "loadAd",
+    returnType = "V",
+)
+
+internal object InterstitialShowFingerprint : Fingerprint(
+    definingClass = "Lcom/google/android/gms/ads/interstitial/InterstitialAd;",
+    name = "show",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    returnType = "V",
+    parameters = listOf("Landroid/app/Activity;"),
+)

@@ -31,9 +31,9 @@ val unlockFludPremiumPatch = bytecodePatch(
             fp.method.addInstructions(0, "const/4 v0, 0x$value\nreturn v0")
         }.isSuccess
 
-        // 1) Billing purchases callback (v2.2.7: Lda0; onQueryPurchasesResponse).
-        // p0=this, p1=BillingResult, p2=List. .locals is sufficient for v0-v3 in target.
-        val premiumStateSmali = """
+        // 1) Billing purchases callback.
+        // v2.2.7-specific state manipulation (safe only for Lda0; layout).
+        val v227PremiumStateSmali = """
             iget-object v0, p0, Lda0;->b:Ljava/lang/Object;
             instance-of v1, v0, Lfa0;
             if-eqz v1, :flud_premium_done
@@ -51,11 +51,13 @@ val unlockFludPremiumPatch = bytecodePatch(
             :flud_premium_done
             return-void
         """.trimIndent()
+        // Generic fallback: block original callback handling (cannot safely assume obfuscated field layout).
+        val genericBillingSmali = "return-void"
 
         val billingPatched =
-            runCatching { QueryPurchasesResponseFingerprint.method.addInstructions(0, premiumStateSmali) }.isSuccess ||
-                runCatching { PurchasesUpdatedFingerprint.method.addInstructions(0, premiumStateSmali) }.isSuccess ||
-                runCatching { PurchaseHistoryResponseFingerprint.method.addInstructions(0, premiumStateSmali) }.isSuccess
+            runCatching { QueryPurchasesResponseFingerprint.method.addInstructions(0, v227PremiumStateSmali) }.isSuccess ||
+                runCatching { PurchasesUpdatedFingerprint.method.addInstructions(0, genericBillingSmali) }.isSuccess ||
+                runCatching { PurchaseHistoryResponseFingerprint.method.addInstructions(0, genericBillingSmali) }.isSuccess
         if (!billingPatched) {
             throw PatchException("Could not find Flud billing callback (onQueryPurchasesResponse/onPurchasesUpdated). Verify APK is com.delphicoder.flud v2.2.7 or adjust fingerprints.")
         }
@@ -72,7 +74,9 @@ val unlockFludPremiumPatch = bytecodePatch(
 
         // 4) AdMob (best-effort): block banner/interstitial loading and SDK initialization.
         voidAtStart(AdViewLoadAdFingerprint)
+        voidAtStart(AdLoaderLoadAdFingerprint)
         voidAtStart(InterstitialLoadFingerprint)
+        voidAtStart(InterstitialShowFingerprint)
         voidAtStart(MobileAdsInitializeFingerprint)
 
         // 5) Bypass storage-permission setup/onboarding blocks (best-effort).
