@@ -21,31 +21,19 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 <!-- PATCHES_START EXPANDED -->
 > **[v1.0.2](https://github.com/wizzwuz/morphe-patch/releases/tag/v1.0.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;2 patches total
 <details open>
-<summary>📦 XYZ app&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
-<br>
-
-**Package name:** `com.example.app`
-
-**🎯 Supported versions:**
-
-| 2.0.0 | 1.0.2 |
-| :---: | :---: |
-
-| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
-|----------|----------------|-----------|
-| [Example Patch](#example-patch) | Example patch to start with. |  |
-
-</details>
-
-<details open>
-<summary>📦 Total Commander NTFS Read-Only&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<summary>📦 Microsoft exFAT/NTFS for USB by Paragon Software&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
 <br>
 
 **Package name:** `com.paragon.tcplugins_ntfs_ro`
 
+**🎯 Supported versions:**
+
+| 5.4.0 |
+| :---: |
+
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Unlock value pack](#unlock-value-pack) | Unlocks value pack/full access by forcing purchase validation to succeed and bypassing the app signature integrity check for com.paragon.tcplugins_ntfs_ro. |  |
+| [Unlock value pack](#unlock-value-pack) | Unlock Value pack |  |
 
 </details>
 
@@ -62,4 +50,4 @@ See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation
 
 ## 📜 License
 
-UserXYZ Patches are licensed under the [GNU General Public License v3.0](LICENSE)
+Wizzwuz Patches are licensed under the [GNU General Public License v3.0](LICENSE)
