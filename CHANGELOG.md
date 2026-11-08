@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/wizzwuz/morphe-patch/compare/v1.0.1...v1.0.2) (2026-11-08)
+
+### 🐛 Bug Fixes
+
+* **patches:** fix SignatureIntegrityFingerprint filter matching ([17a6dce](https://github.com/wizzwuz/morphe-patch/commit/17a6dce8a8ae0da16d0af7ddaa7f9b919ba70a05))
+
 ## [1.0.1](https://github.com/wizzwuz/morphe-patch/compare/v1.0.0...v1.0.1) (2026-11-08)
 
 ### 🐛 Bug Fixes
