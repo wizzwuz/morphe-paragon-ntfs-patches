@@ -8,16 +8,18 @@ import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 
 /**
- * Google Play Billing callbacks. Method names/signatures are stable across app
- * obfuscation because they implement the Billing client callback API.
- * Matched broadly (no pinned obfuscated defining class) so it works across Flud versions.
+ * Flud v2.2.7 billing callback (obfuscated class da0).
+ * Stable API method name/signature from BillingClient; defining class pinned for v2.2.7.
  */
 internal object QueryPurchasesResponseFingerprint : Fingerprint(
+    definingClass = "Lda0;",
     name = "onQueryPurchasesResponse",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "V",
     parameters = listOf("Lcom/android/billingclient/api/BillingResult;", "Ljava/util/List;"),
 )
 
+/** Flexible fallbacks for other Flud builds / callback paths. */
 internal object PurchasesUpdatedFingerprint : Fingerprint(
     name = "onPurchasesUpdated",
     returnType = "V",
@@ -31,8 +33,7 @@ internal object PurchaseHistoryResponseFingerprint : Fingerprint(
 )
 
 /**
- * v2.2.7-era obfuscated ad manager (ei3). Kept for compatibility with that build.
- * If absent on other versions, the patch still applies the generic ad/billing fixes below.
+ * v2.2.7-era obfuscated ad manager (ei3). Best-effort on other versions.
  */
 internal object AdsEnabledFingerprint : Fingerprint(
     definingClass = "Lei3;",
@@ -68,7 +69,7 @@ internal object AdsShowFingerprint : Fingerprint(
 
 /**
  * Removes the "Thanks! premium is now unlocked" popup/toast/dialog.
- * Matches methods containing the distinctive unlocked-premium message text.
+ * String-based; best-effort (may not resolve on all builds/localizations).
  */
 internal object PremiumUnlockedPopupFingerprint : Fingerprint(
     returnType = "V",
@@ -80,15 +81,14 @@ internal object PremiumUnlockedPopupFingerprint : Fingerprint(
 internal object PremiumUnlockedPopupAltFingerprint : Fingerprint(
     returnType = "V",
     filters = listOf(
-        string("Thanks"),
         string("premium"),
         string("unlocked"),
+        opcode(Opcode.RETURN_VOID),
     ),
 )
 
 /**
- * Bypass storage permission setup/onboarding blocks that prevent using the app until
- * all-files/storage access is granted (common MANAGE_EXTERNAL_STORAGE flow).
+ * Bypass storage permission setup/onboarding blocks (MANAGE_EXTERNAL_STORAGE / all-files flow).
  */
 internal object StoragePermissionSetupFingerprint : Fingerprint(
     returnType = "V",
@@ -97,19 +97,16 @@ internal object StoragePermissionSetupFingerprint : Fingerprint(
     ),
 )
 
-/**
- * Fallback storage gate: methods that check/route around MANAGE_EXTERNAL_STORAGE.
- */
 internal object ManageExternalStorageCheckFingerprint : Fingerprint(
     returnType = "Z",
     filters = listOf(
         string("android.permission.MANAGE_EXTERNAL_STORAGE"),
+        string("isExternalStorageManager"),
     ),
 )
 
 /**
- * Google Play Integrity / licensing verdict handling. Returning a successful/allowed
- * result prevents integrity-gated premium/license blocks.
+ * Google Play Integrity / licensing verdict handling (best-effort).
  */
 internal object PlayIntegrityResultFingerprint : Fingerprint(
     returnType = "V",
@@ -124,7 +121,7 @@ internal object PlayIntegrityResultFingerprint : Fingerprint(
 )
 
 /**
- * AdMob banner/interstitial load entry points - prevents banner views from loading ads.
+ * AdMob banner/interstitial load entry points (best-effort).
  */
 internal object AdViewLoadAdFingerprint : Fingerprint(
     definingClass = "Lcom/google/android/gms/ads/BaseAdView;",
@@ -152,4 +149,8 @@ internal object MobileAdsInitializeFingerprint : Fingerprint(
     name = "initialize",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
     returnType = "V",
+    parameters = listOf(
+        "Landroid/content/Context;",
+        "Lcom/google/android/gms/ads/initialization/OnInitializationCompleteListener;",
+    ),
 )

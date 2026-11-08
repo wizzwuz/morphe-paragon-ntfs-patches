@@ -1,22 +1,20 @@
 /*
- * Flud (com.delphicoder.flud) - premium unlock, ad removal, popup removal,
+ * Flud (com.delphicoder.flud) v2.2.7 - premium unlock, ad removal, popup removal,
  * storage-permission setup bypass, and Play Integrity/licensing bypass.
  *
- * Strategy:
- * - Hook the stable Billing callback name (onQueryPurchasesResponse) to force
- *   premium handling to stop in the original callback path.
- * - Remove the "premium is now unlocked" popup by no-oping methods that contain
- *   that message.
- * - Disable app-level and AdMob ad loading/display (banners + interstitials).
- * - Bypass storage-permission setup gates and Play Integrity verdict handling.
+ * Primary targets (v2.2.7):
+ * - Lda0;->onQueryPurchasesResponse(BillingResult,List)V: force premium state
+ *   (fa0.m/fn5, fa0.k emits tj4.a) and return before original handling.
+ * - Lei3; ad manager: c()Z false, a/b/d()V no-op.
  *
- * Fingerprints that depend on SDK/app internals are applied best-effort so one
- * missing symbol on a given APK version does not abort the whole patch.
+ * Additional best-effort hooks (applied only if resolved): popup string removal,
+ * AdMob load/init, storage permission gates, Play Integrity verdict handling.
  */
 package app.morphe.patches.flud.premium
 
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.flud.premium.Constants
 
@@ -33,9 +31,9 @@ val unlockFludPremiumPatch = bytecodePatch(
             fp.method.addInstructions(0, "const/4 v0, 0x$value\nreturn v0")
         }.isSuccess
 
-        // 1) Billing purchases callbacks (stable API names/signatures).
+        // 1) Billing purchases callback (v2.2.7: Lda0; onQueryPurchasesResponse).
+        // p0=this, p1=BillingResult, p2=List. .locals is sufficient for v0-v3 in target.
         val premiumStateSmali = """
-            # Best-effort v2.2.7 premium state (da0.b -> fa0, fa0.m/fn5, fa0.k emits tj4.a)
             iget-object v0, p0, Lda0;->b:Ljava/lang/Object;
             instance-of v1, v0, Lfa0;
             if-eqz v1, :flud_premium_done
@@ -52,36 +50,36 @@ val unlockFludPremiumPatch = bytecodePatch(
             invoke-interface {v1, v2}, Ld95;->g(Ljava/lang/Object;)Ljava/lang/Object;
             :flud_premium_done
             return-void
-        """
+        """.trimIndent()
+
         val billingPatched =
             runCatching { QueryPurchasesResponseFingerprint.method.addInstructions(0, premiumStateSmali) }.isSuccess ||
                 runCatching { PurchasesUpdatedFingerprint.method.addInstructions(0, premiumStateSmali) }.isSuccess ||
                 runCatching { PurchaseHistoryResponseFingerprint.method.addInstructions(0, premiumStateSmali) }.isSuccess
-        // Critical path: premium unlock depends on billing callbacks matching.
         if (!billingPatched) {
-            QueryPurchasesResponseFingerprint.method.addInstructions(0, premiumStateSmali)
+            throw PatchException("Could not find Flud billing callback (onQueryPurchasesResponse/onPurchasesUpdated). Verify APK is com.delphicoder.flud v2.2.7 or adjust fingerprints.")
         }
 
-        // 2) Remove "Thanks! premium is now unlocked" popup.
+        // 2) Remove "Thanks! premium is now unlocked" popup (best-effort).
         voidAtStart(PremiumUnlockedPopupFingerprint)
         voidAtStart(PremiumUnlockedPopupAltFingerprint)
 
-        // 3) Legacy v2.2.7 ad manager (ei3) - best effort.
+        // 3) v2.2.7 ad manager (ei3).
         boolAtStart(AdsEnabledFingerprint, 0)
         voidAtStart(AdsInitFingerprint)
         voidAtStart(AdsLoadFingerprint)
         voidAtStart(AdsShowFingerprint)
 
-        // 4) AdMob: block banner/interstitial loading and SDK initialization.
+        // 4) AdMob (best-effort): block banner/interstitial loading and SDK initialization.
         voidAtStart(AdViewLoadAdFingerprint)
         voidAtStart(InterstitialLoadFingerprint)
         voidAtStart(MobileAdsInitializeFingerprint)
 
-        // 5) Bypass storage-permission setup/onboarding blocks.
+        // 5) Bypass storage-permission setup/onboarding blocks (best-effort).
         voidAtStart(StoragePermissionSetupFingerprint)
         boolAtStart(ManageExternalStorageCheckFingerprint, 1)
 
-        // 6) Play Integrity / licensing: avoid failure paths in verdict handling.
+        // 6) Play Integrity / licensing (best-effort).
         voidAtStart(PlayIntegrityResultFingerprint)
     }
 }
