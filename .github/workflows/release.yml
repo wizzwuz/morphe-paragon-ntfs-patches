@@ -29,10 +29,9 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 'lts/*'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-bin-links --no-package-lock || npm install --no-bin-links
 
       # Semantic release runs its own Gradle build command.
       # Only dev and main branch will generate a release as specified by .releaserc
