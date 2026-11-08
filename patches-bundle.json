@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-08T16:54:53",
-  "description": "## [1.0.2](https://github.com/wizzwuz/morphe-patch/compare/v1.0.1...v1.0.2) (2026-11-08)\n\n### 🐛 Bug Fixes\n\n* **patches:** fix SignatureIntegrityFingerprint filter matching ([17a6dce](https://github.com/wizzwuz/morphe-patch/commit/17a6dce8a8ae0da16d0af7ddaa7f9b919ba70a05))",
-  "download_url": "https://github.com/wizzwuz/morphe-patch/releases/download/v1.0.2/patches-1.0.2.mpp",
+  "created_at": "2026-11-08T20:15:41",
+  "description": "## [1.0.3](https://github.com/wizzwuz/morphe-patch/compare/v1.0.2...v1.0.3) (2026-11-08)\n\n### \ud83d\udd27 Improvements & Maintenance\n\n* **patches:** simplify description of unlockValuePackPatch ([9a08b95](https://github.com/wizzwuz/morphe-patch/commit/9a08b9550b07328bf3d8c1c4e723ae73673c68ea))\n* **build:** update build.gradle.kts ([58096c4](https://github.com/wizzwuz/morphe-patch/commit/58096c4398c28aa076f99f3f0ad9c205dab7bcf8))\n* **docs:** update README.md ([05e78af](https://github.com/wizzwuz/morphe-patch/commit/05e78afbf6960ddbc6e480ae491d92634e2b0235))",
+  "download_url": "https://github.com/wizzwuz/morphe-patch/releases/download/v1.0.3/patches-1.0.3.mpp",
   "signature_download_url": "",
-  "version": "1.0.2"
+  "version": "1.0.3"
 }
