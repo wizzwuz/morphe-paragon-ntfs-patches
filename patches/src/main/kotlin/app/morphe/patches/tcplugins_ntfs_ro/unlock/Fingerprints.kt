@@ -1,7 +1,6 @@
 package app.morphe.patches.tcplugins_ntfs_ro.unlock
 
 import app.morphe.patcher.Fingerprint
-import app.morphe.patcher.methodCall
 import app.morphe.patcher.opcode
 import app.morphe.patcher.string
 import com.android.tools.smali.dexlib2.AccessFlags
@@ -34,18 +33,10 @@ internal object PurchaseStatusValidFingerprint : Fingerprint(
  * Patch returns 0 to avoid patched-APK integrity rejection.
  */
 internal object SignatureIntegrityFingerprint : Fingerprint(
-    definingClass = "Lq3/h;",
-    name = "a",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
     returnType = "I",
     parameters = listOf("Landroid/content/Context;"),
     filters = listOf(
-        string("SHA"),
-        methodCall(
-            opcode = Opcode.INVOKE_VIRTUAL,
-            name = "getPackageManager",
-            parameters = listOf(),
-            returnType = "Landroid/content/pm/PackageManager;"
-        )
+        string("SHA")
     )
 )
