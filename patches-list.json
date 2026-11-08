@@ -44,7 +44,7 @@
       "compatiblePackages": [
         {
           "packageName": "com.paragon.tcplugins_ntfs_ro",
-          "name": "Total Commander NTFS Read-Only",
+          "name": "Microsoft exFAT/NTFS for USB by Paragon Software",
           "description": null,
           "apkFileType": "APK",
           "appIconColor": "#000000",

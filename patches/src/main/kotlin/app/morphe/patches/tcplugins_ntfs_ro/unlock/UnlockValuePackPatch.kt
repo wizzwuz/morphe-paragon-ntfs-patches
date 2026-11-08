@@ -1,6 +1,6 @@
 /*
  * Unlock Value Pack / full access for com.paragon.tcplugins_ntfs_ro
- * (Paragon Total Commander NTFS Read-Only plugin).
+ * (Paragon Microsoft exFAT/NTFS for USB by Paragon Software plugin).
  *
  * Targets identified from the decompiled source provided by the user:
  * - p3.i.j()Z: purchase-status validity; always true => purchases/value-pack

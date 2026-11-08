@@ -6,7 +6,7 @@ import app.morphe.patcher.patch.Compatibility
 
 object Constants {
     val COMPATIBILITY_NTFS_RO = Compatibility(
-        name = "Total Commander NTFS Read-Only",
+        name = "Microsoft exFAT/NTFS for USB by Paragon Software",
         packageName = "com.paragon.tcplugins_ntfs_ro",
         apkFileType = ApkFileType.APK,
         appIconColor = 0x000000,
