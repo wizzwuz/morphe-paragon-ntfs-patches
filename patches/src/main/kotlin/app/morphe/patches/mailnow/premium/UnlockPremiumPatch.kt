@@ -47,7 +47,7 @@ val unlockMailNowPremiumPatch = bytecodePatch(
         voidAtStart(MobileAdsInitCallbackFingerprint)
 
         // Client-side premium spoof: Q(action, skuCsv) is called by web flow.
-        // Store action/SKU, then for buy/restore actions send successPurchase to WebView JS.
+        // Uses only v0 to stay within the method's original register frame (.locals 1).
         runCatching {
             BillingEntryFingerprint.method.addInstructions(
                 0,
@@ -56,7 +56,7 @@ val unlockMailNowPremiumPatch = bytecodePatch(
                     iput-object p1, p0, Lair/kukulive/mailnow/MainActivity;->L:Ljava/lang/String;
                     iput-object p2, p0, Lair/kukulive/mailnow/MainActivity;->M:Ljava/lang/String;
 
-                    # Spoof only for purchase/restore actions.
+                    # Spoof for buy/restore/restore_silent.
                     const-string v0, "buy"
                     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
                     move-result v0
@@ -74,30 +74,13 @@ val unlockMailNowPremiumPatch = bytecodePatch(
                     const-string v0, "restore_silent"
                     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
                     move-result v0
-                    if-nez v0, :mn_spoof
+                    if-eqz v0, :mn_spoof
+
+                    # Not a buy/restore action we spoof: skip real billing setup.
                     return-void
 
                     :mn_spoof
-                    # Use requested SKU; if null/empty, fall back to "premium_year".
-                    move-object v0, p2
-                    if-eqz v0, :mn_sku_fallback
-                    invoke-virtual {v0}, Ljava/lang/String;->length()I
-                    move-result v1
-                    if-lez v1, :mn_sku_fallback
-                    goto :mn_sku_ok
-                    :mn_sku_fallback
-                    const-string v0, "premium_year"
-
-                    :mn_sku_ok
-                    new-instance v1, Ljava/lang/StringBuilder;
-                    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-                    const-string v2, "javascript:buyAppItem('successPurchase','morphe_spoofed_token','"
-                    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-                    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-                    const-string v2, "');"
-                    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-                    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-                    move-result-object v0
+                    const-string v0, "javascript:buyAppItem('successPurchase','morphe_spoofed_token','premium_year');"
                     invoke-virtual {p0, v0}, Lair/kukulive/mailnow/MainActivity;->J(Ljava/lang/String;)V
                     return-void
                 """
