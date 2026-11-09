@@ -35,15 +35,6 @@ internal object MobileAdsInitCallbackFingerprint : Fingerprint(
     parameters = listOf(),
 )
 
-/** Billing entry point called from web flow (FlexCall->pz2): Q(action, skuCsv). */
-internal object BillingEntryFingerprint : Fingerprint(
-    definingClass = "Lair/kukulive/mailnow/MainActivity;",
-    name = "Q",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    returnType = "V",
-    parameters = listOf("Ljava/lang/String;", "Ljava/lang/String;"),
-)
-
 /** Obfuscated BaseAdView.loadAd(AdRequest) in the bundled AdMob SDK used by this app build. */
 internal object BaseAdViewObfLoadFingerprint : Fingerprint(
     definingClass = "Lcom/google/android/gms/ads/BaseAdView;",
