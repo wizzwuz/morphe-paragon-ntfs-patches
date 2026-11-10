@@ -26,12 +26,14 @@ import app.morphe.patches.vpnclientpro.premium.Constants
 @Suppress("unused")
 val unlockVpnClientProFeaturesPatch = bytecodePatch(
     name = "Unlock Pro Features",
-    description = "Unlocks selected features/protocols in VPN Client Pro (it.colucciweb.vpnclientpro): all protocols, obfs/scramble, TAP emulator, auto-connect, connect on demand, split DNS, failover, Tasker/Automate, port knocking, on-connect action, shortcuts, widgets, quick tiles.",
+        description = "Unlocks selected features/protocols in VPN Client Pro (it.colucciweb.vpnclientpro): protocols, auto-connect, connect on demand, split DNS, failover, Tasker/Automate, port knocking, on-connect action, shortcuts, widgets, quick tiles (obfs/scramble and TAP excluded to avoid runtime breakage).",
 ) {
     compatibleWith(Constants.COMPATIBILITY_VPNCLIENTPRO)
 
     execute {
         // Feature IDs (from yj.j, v1.02.57).
+        // NOTE: obfs/scramble (718849192) and TAP emulator (719849728) are runtime-affecting
+        // and excluded by default to avoid breaking VPN connections; they can be re-added if needed.
         val featureIds = listOf(
             19339902,   // OpenVPN client
             166729092,  // SSTP client
@@ -40,8 +42,6 @@ val unlockVpnClientProFeaturesPatch = bytecodePatch(
             536074627,  // SoftEther client
             551267005,  // Shadowsocks client
             608107152,  // SSH client
-            718849192,  // OpenVPN obfs2/obfs3/scramble patch
-            719849728,  // OpenVPN TAP emulator
             752704424,  // Auto connect
             777074589,  // Connect on demand
             823778945,  // Advanced split DNS
