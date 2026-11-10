@@ -4,22 +4,25 @@ import app.morphe.patcher.Fingerprint
 import com.android.tools.smali.dexlib2.AccessFlags
 
 /**
- * VPN Client Pro (it.colucciweb.vpnclientpro) premium/license fingerprints.
- * Analysis based on decompiled source in app-source/vpnclientpro_source (m00).
+ * VPN Client Pro (it.colucciweb.vpnclientpro) feature/license fingerprints.
+ * Analysis based on decompiled source in app-source/vpnclientpro_source (m00), v1.02.57.
  *
- * - ls: billing/license ViewModel (batch-3). m() returns owned license list (List<is>).
- *   n() queries billing and populates p; if billing not ready or no purchases, m() is empty.
- * - tn: auto-connect feature ViewModel (batch-5). f() gates auto-connect (error_disabled_feature).
- * - om4/yo4: UI screens that check ls.m().isEmpty() for license display.
+ * - yj.n(int): central licensed-feature check (returns true if feature ID is in licensed set).
+ *   Feature IDs: 718849192 obfs/scramble, 719849728 TAP emulator, 752704424 auto-connect,
+ *   777074589 connect on demand, 823778945 advanced split DNS, 946545622 failover,
+ *   1122572344 Tasker/Automate, 1172297389 port knocking, 1204386766 on-connect action,
+ *   1257343314 shortcuts, 1290565896 widgets, 1444998748 quick tiles, etc.
+ * - ex0.b(): feature menu item blocked when requireFeature!=0 && !yj.n(id).
+ * - tn.f(): auto-connect ViewModel gate (checked directly in UI).
  */
 
-/** Returns the list of owned licenses (List<is>) from state p. */
-internal object LicenseListFingerprint : Fingerprint(
-    definingClass = "Lls;",
-    name = "m",
+/** Central feature license check: returns true if feature id is licensed. */
+internal object FeatureLicensedFingerprint : Fingerprint(
+    definingClass = "Lyj;",
+    name = "n",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    returnType = "Ljava/util/List;",
-    parameters = listOf(),
+    returnType = "Z",
+    parameters = listOf("I"),
 )
 
 /** Auto-connect feature gate: returns o.getValue() boolean. */
@@ -29,20 +32,4 @@ internal object AutoConnectFeatureGateFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "Z",
     parameters = listOf(),
-)
-
-/** Billing/licenses UI: contains `if (lsVar.m().isEmpty())` gate (batch-4). */
-internal object BillingUiLicenseEmptyFingerprint : Fingerprint(
-    definingClass = "Lom4;",
-    name = "a",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL),
-    returnType = "V",
-)
-
-/** Licenses/settings UI: contains `lsVar.m().isEmpty()` / size checks (batch-6). */
-internal object LicensesUiFingerprint : Fingerprint(
-    definingClass = "Lyo4;",
-    name = "a",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL),
-    returnType = "V",
 )
