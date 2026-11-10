@@ -31,7 +31,15 @@ internal object FeatureLicensedAsyncFingerprint : Fingerprint(
     name = "o",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
     returnType = "Ljava/lang/Object;",
-    parameters = listOf("Lyj;", "I", "Lpc0;"),
+    parameters = listOf("Lyj;", "I", "Loc0;"),
+)
+
+/** Fallback: async feature authorization with broader parameter matching. */
+internal object FeatureLicensedAsyncFallbackFingerprint : Fingerprint(
+    definingClass = "Lyj;",
+    name = "o",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+    returnType = "Ljava/lang/Object;",
 )
 
 /** Auto-connect feature gate: returns o.getValue() boolean. */

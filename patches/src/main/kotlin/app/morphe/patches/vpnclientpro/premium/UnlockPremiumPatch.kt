@@ -43,12 +43,18 @@ val unlockVpnClientProFeaturesPatch = bytecodePatch(
         boolTrue(FeatureLicensedFingerprint, "feature license check (yj.n)", required = true)
 
         // Async feature authorization (widgets/tiles use this path).
-        runCatching {
+        val asyncOk = runCatching {
             FeatureLicensedAsyncFingerprint.method.addInstructions(
                 0,
                 "sget-object v0, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;\nreturn-object v0"
             )
-        }.onFailure {
+        }.isSuccess || runCatching {
+            FeatureLicensedAsyncFallbackFingerprint.method.addInstructions(
+                0,
+                "sget-object v0, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;\nreturn-object v0"
+            )
+        }.isSuccess
+        if (!asyncOk) {
             throw PatchException("Could not patch async feature check (yj.o). Widgets/tiles may remain locked.")
         }
 
