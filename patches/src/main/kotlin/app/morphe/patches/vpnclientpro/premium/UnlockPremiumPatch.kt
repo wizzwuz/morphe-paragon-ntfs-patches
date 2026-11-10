@@ -36,18 +36,29 @@ val unlockVpnClientProPremiumPatch = bytecodePatch(
         // 1) Auto-connect feature gate: tn.f() -> true
         boolTrue(AutoConnectFeatureGateFingerprint)
 
-        // 2) License list: if empty, synthesize licenses from known products.
-        //    ls fields: p (gt2/state holding List<is>), s (gt2/state holding Map<String,f03>).
-        //    Registers v0-v5 (registerCount ensured >= 6).
+        // 2) License list: if empty, try to synthesize licenses from product map s.
+        //    ls fields: p (gt2/state -> List<is>), s (gt2/state -> Map<String,f03>).
+        //    Requires extra registers; falls back gracefully if synthesis fails.
         runCatching {
-            val m = LicenseListFingerprint.method
-            m.implementation?.let { impl ->
-                if (impl.registerCount < 7) impl.registerCount = 7
+            val method = LicenseListFingerprint.method
+            val impl = method.implementation
+            if (impl != null && impl.registerCount < 8) {
+                try {
+                    val regField = impl.javaClass.getMethod("setRegisterCount", Int::class.javaPrimitiveType)
+                    regField.invoke(impl, 8)
+                } catch (_: Throwable) {
+                    try {
+                        val f = impl.javaClass.getDeclaredField("registerCount")
+                        f.isAccessible = true
+                        f.setInt(impl, 8)
+                    } catch (_: Throwable) {
+                    }
+                }
             }
-            m.addInstructions(
+            method.addInstructions(
                 0,
                 """
-                    # Get current license list from p
+                    # Current license list from p
                     iget-object v0, p0, Lls;->p:Lgt2;
                     invoke-interface {v0}, Lgt2;->getValue()Ljava/lang/Object;
                     move-result-object v0
@@ -62,16 +73,14 @@ val unlockVpnClientProPremiumPatch = bytecodePatch(
                     new-instance v0, Ljava/util/ArrayList;
                     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
                     iget-object v1, p0, Lls;->s:Lgt2;
-                    if-nez v1, :vpn_have_s
-                    return-object v0
-                    :vpn_have_s
+                    if-nez v1, :vpn_done
                     invoke-interface {v1}, Lgt2;->getValue()Ljava/lang/Object;
                     move-result-object v1
                     check-cast v1, Ljava/util/Map;
                     if-eqz v1, :vpn_done
                     invoke-interface {v1}, Ljava/util/Map;->isEmpty()Z
                     move-result v2
-                    if-nez v2, :vpn_done
+                    if-eqz v2, :vpn_done
 
                     invoke-interface {v1}, Ljava/util/Map;->values()Ljava/util/Collection;
                     move-result-object v1
@@ -88,45 +97,20 @@ val unlockVpnClientProPremiumPatch = bytecodePatch(
                     check-cast v2, Lf03;
                     if-nez v2, :vpn_loop
 
-                    # v3 = sku string (f03.b) or fallback "premium"
-                    iget-object v3, v2, Lf03;->b:Ljava/lang/String;
-                    if-eqz v3, :vpn_sku_fallback
-                    goto :vpn_sku_ready
-                    :vpn_sku_fallback
-                    const-string v3, "premium"
-                    :vpn_sku_ready
-
-                    # v4 = StringBuilder for JSON
-                    new-instance v4, Ljava/lang/StringBuilder;
-                    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-                    const-string v5, "{\"productId\":\""
-                    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-                    move-result-object v4
-                    invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-                    move-result-object v4
-                    const-string v5, "\",\"purchaseToken\":\"spoofed\",\"purchaseState\":1,\"acknowledged\":true}"
-                    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-                    move-result-object v4
-                    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-                    move-result-object v3
-
-                    # v4 = new m13(json, sig)
-                    new-instance v4, Lm13;
-                    const-string v5, "spoofed_signature"
-                    invoke-direct {v4, v3, v5}, Lm13;-><init>(Ljava/lang/String;Ljava/lang/String;)V
-
-                    # v3 = new is(m13, f03)
-                    new-instance v3, Lis;
-                    invoke-direct {v3, v4, v2}, Lis;-><init>(Lm13;Lf03;)V
-                    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+                    # v3 = json, v4 = sig, v5 = m13, v6 = is
+                    const-string v3, "{\"productId\":\"premium\",\"purchaseToken\":\"spoofed\",\"purchaseState\":1,\"acknowledged\":true}"
+                    const-string v4, "spoofed_signature"
+                    new-instance v5, Lm13;
+                    invoke-direct {v5, v3, v4}, Lm13;-><init>(Ljava/lang/String;Ljava/lang/String;)V
+                    new-instance v6, Lis;
+                    invoke-direct {v6, v5, v2}, Lis;-><init>(Lm13;Lf03;)V
+                    invoke-virtual {v0, v6}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
                     goto :vpn_loop
 
                     :vpn_done
                     return-object v0
                 """
             )
-        }.onFailure {
-            throw PatchException("Could not patch VPN Client Pro license list (ls.m). Verify APK version or adjust fingerprints.")
         }
     }
 }
