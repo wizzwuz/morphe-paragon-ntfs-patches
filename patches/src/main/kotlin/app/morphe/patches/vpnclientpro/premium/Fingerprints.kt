@@ -8,12 +8,12 @@ import com.android.tools.smali.dexlib2.AccessFlags
  * Analysis based on decompiled source in app-source/vpnclientpro_source (m00), v1.02.57.
  *
  * - yj.n(int): central licensed-feature check (returns true if feature ID is in licensed set).
- *   Feature IDs: 718849192 obfs/scramble, 719849728 TAP emulator, 752704424 auto-connect,
- *   777074589 connect on demand, 823778945 advanced split DNS, 946545622 failover,
- *   1122572344 Tasker/Automate, 1172297389 port knocking, 1204386766 on-connect action,
- *   1257343314 shortcuts, 1290565896 widgets, 1444998748 quick tiles, etc.
+ *   Protocol IDs: 19339902 OpenVPN, 166729092 SSTP, 238425325 OpenConnect, 478614834 WireGuard,
+ *   536074627 SoftEther, 551267005 Shadowsocks, 608107152 SSH.
+ *   Other feature IDs (obfs/scramble, TAP, auto-connect, connect-on-demand, split DNS, failover,
+ *   Tasker/Automate, port knocking, on-connect action, shortcuts, widgets, tiles) are NOT
+ *   forced unlocked to avoid triggering native OpenVPN crashes.
  * - ex0.b(): feature menu item blocked when requireFeature!=0 && !yj.n(id).
- * - tn.f(): auto-connect ViewModel gate (checked directly in UI).
  */
 
 /** Central feature license check: returns true if feature id is licensed. */
@@ -40,13 +40,4 @@ internal object FeatureLicensedAsyncFallbackFingerprint : Fingerprint(
     name = "o",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
     returnType = "Ljava/lang/Object;",
-)
-
-/** Auto-connect feature gate: returns o.getValue() boolean. */
-internal object AutoConnectFeatureGateFingerprint : Fingerprint(
-    definingClass = "Ltn;",
-    name = "f",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    returnType = "Z",
-    parameters = listOf(),
 )

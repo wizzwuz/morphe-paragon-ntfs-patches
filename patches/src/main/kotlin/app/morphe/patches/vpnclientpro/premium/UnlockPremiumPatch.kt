@@ -1,20 +1,18 @@
 /*
- * VPN Client Pro (it.colucciweb.vpnclientpro) - unlock selected pro features.
+ * VPN Client Pro (it.colucciweb.vpnclientpro) - unlock protocol IDs only.
  *
  * Analysis source: app-source/vpnclientpro_source (decompiled Java, m00, v1.02.57).
  *
  * Targets (feature/license gates only):
  * - Lyj;->n(I)Z : central feature-license check (used by ex0.b() requireFeature items).
  * - Lyj;->o(Lyj;I;Loc0;)Ljava/lang/Object; : async feature authorization (widgets/tiles/runtime).
- * - Ltn;->f()Z : auto-connect UI gate.
  *
- * Unlocked feature IDs (from yj.j): protocols + requested features
+ * Unlocked feature IDs (from yj.j): protocol IDs only
  *   19339902 OpenVPN, 166729092 SSTP, 238425325 OpenConnect, 478614834 WireGuard,
- *   536074627 SoftEther, 551267005 Shadowsocks, 608107152 SSH,
- *   718849192 obfs/scramble, 719849728 TAP emulator, 752704424 auto-connect,
- *   777074589 connect on demand, 823778945 advanced split DNS, 946545622 failover,
- *   1122572344 Tasker/Automate, 1172297389 port knocking, 1204386766 on-connect action,
- *   1257343314 shortcuts, 1290565896 widgets, 1444998748 quick tiles.
+ *   536074627 SoftEther, 551267005 Shadowsocks, 608107152 SSH.
+ * All other feature IDs (obfs/scramble, TAP, auto-connect, connect-on-demand, split DNS,
+ * failover, Tasker/Automate, port knocking, on-connect action, shortcuts, widgets, tiles)
+ * are NOT forced unlocked to avoid triggering native VPN engine crashes.
  */
 package app.morphe.patches.vpnclientpro.premium
 
@@ -25,15 +23,17 @@ import app.morphe.patches.vpnclientpro.premium.Constants
 
 @Suppress("unused")
 val unlockVpnClientProFeaturesPatch = bytecodePatch(
-    name = "Unlock Pro Features",
-        description = "Unlocks selected features/protocols in VPN Client Pro (it.colucciweb.vpnclientpro): protocols, auto-connect, connect on demand, split DNS, failover, Tasker/Automate, port knocking, on-connect action, shortcuts, widgets, quick tiles (obfs/scramble and TAP excluded to avoid runtime breakage).",
+    name = "Unlock Protocols Only",
+    description = "Unlocks only protocol selection in VPN Client Pro (it.colucciweb.vpnclientpro): OpenVPN, SSTP, OpenConnect, WireGuard, SoftEther, Shadowsocks, SSH. All pro features remain gated by original license checks to avoid native crashes.",
 ) {
     compatibleWith(Constants.COMPATIBILITY_VPNCLIENTPRO)
 
     execute {
-        // Feature IDs (from yj.j, v1.02.57).
-        // NOTE: obfs/scramble (718849192) and TAP emulator (719849728) are runtime-affecting
-        // and excluded by default to avoid breaking VPN connections; they can be re-added if needed.
+        // Feature IDs (from yj.j, v1.02.57): PROTOCOL IDs ONLY.
+        // All pro features (auto-connect, connect-on-demand, split DNS, failover,
+        // Tasker/Automate, port knocking, on-connect action, shortcuts, widgets,
+        // quick tiles, obfs/scramble, TAP) are intentionally NOT unlocked to avoid
+        // triggering native OpenVPN library crashes (SIGSEGV in libopenvpn-2.5.so).
         val featureIds = listOf(
             19339902,   // OpenVPN client
             166729092,  // SSTP client
@@ -42,16 +42,6 @@ val unlockVpnClientProFeaturesPatch = bytecodePatch(
             536074627,  // SoftEther client
             551267005,  // Shadowsocks client
             608107152,  // SSH client
-            752704424,  // Auto connect
-            777074589,  // Connect on demand
-            823778945,  // Advanced split DNS
-            946545622,  // Failover VPN profiles
-            1122572344, // Tasker/Automate plug-in
-            1172297389, // Port knocking
-            1204386766, // On connect action
-            1257343314, // Shortcuts
-            1290565896, // Widgets
-            1444998748, // Quick tiles
         )
 
         fun buildIdChecks(paramReg: String, labelPrefix: String, onMatch: String): String {
@@ -94,14 +84,6 @@ val unlockVpnClientProFeaturesPatch = bytecodePatch(
         }.isSuccess
         if (!asyncOk) {
             throw PatchException("Could not patch async feature check (yj.o).")
-        }
-
-        // Auto-connect UI gate (checked directly).
-        runCatching {
-            AutoConnectFeatureGateFingerprint.method.addInstructions(
-                0,
-                "const/4 v0, 0x1\n    return v0"
-            )
         }
     }
 }
