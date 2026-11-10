@@ -25,6 +25,15 @@ internal object FeatureLicensedFingerprint : Fingerprint(
     parameters = listOf("I"),
 )
 
+/** Async/suspend feature authorization (e.g. widgets): returns Boolean.TRUE when licensed. */
+internal object FeatureLicensedAsyncFingerprint : Fingerprint(
+    definingClass = "Lyj;",
+    name = "o",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+    returnType = "Ljava/lang/Object;",
+    parameters = listOf("Lyj;", "I", "Lpc0;"),
+)
+
 /** Auto-connect feature gate: returns o.getValue() boolean. */
 internal object AutoConnectFeatureGateFingerprint : Fingerprint(
     definingClass = "Ltn;",
